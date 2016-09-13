@@ -1,0 +1,82 @@
+#-------------------------------------------------------------------------------
+# Copyright (C) 2015 The Gravitee team (http://gravitee.io)
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#            http://www.apache.org/licenses/LICENSE-2.0
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#-------------------------------------------------------------------------------
+
+elasticsearch:
+  image: elasticsearch:2.3.5
+  hostname: elasticsearch
+  ports:
+    - "8003:9200"
+  expose:
+    - "9300"
+
+mongodb:
+  hostname: mongodb
+  image: mongo:3.2
+  expose:
+    - "27017"
+
+gateway:
+  image: graviteeio/gateway:${docker_version}
+  hostname: gateway
+  links:
+    - mongodb
+    - elasticsearch
+  environment:
+    - GRAVITEEIO_MONGODB_HOST=mongodb
+    - GRAVITEEIO_MONGODB_PORT=27017
+    - GRAVITEEIO_ELASTIC_HOST=elasticsearch
+    - GRAVITEEIO_ELASTIC_PORT=9300
+  labels:
+    io.rancher.container.pull_image: always
+    
+managementapi:
+  image: graviteeio/management-api:${docker_version}
+  hostname: managementapi
+  links:
+    - mongodb
+    - elasticsearch
+  environment:
+    - GRAVITEEIO_MONGODB_HOST=mongodb
+    - GRAVITEEIO_MONGODB_PORT=27017
+    - GRAVITEEIO_ELASTIC_HOST=elasticsearch
+    - GRAVITEEIO_ELASTIC_PORT=9300
+  labels:
+    io.rancher.container.pull_image: always
+
+managementui:
+  hostname: managementui
+  image: graviteeio/management-ui:${docker_version}
+  links:
+    - managementapi
+  environment:
+    - MGMT_API_URL=http://${managementapi_ip}:8001/management/
+  labels:
+    io.rancher.container.pull_image: always
+
+loadbalancer:
+  ports:
+  - 8001:8083
+  - 8002:80
+  - 8000:8082
+  labels:
+    io.rancher.scheduler.global: 'true'
+    io.rancher.loadbalancer.target.managementapi: 8001=8083
+    io.rancher.loadbalancer.target.management-ui: 8002=80
+    io.rancher.loadbalancer.target.gateway: 8000=8082
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - managementui:managementui
+  - managementapi:managementapi
+  - gateway:gateway
+  stdin_open: true    
