@@ -9,8 +9,26 @@
       label: "Gravitee.io version"
       required: true
       default: "latest"
-      type: "string"    
-    - variable: "managementapi_ip"
+      type: "string"   
+    - variable: "gateway_port"
+      description: "Public gateway port"
+      label: "Public gateway port"
+      required: true
+      default: "8000"
+      type: "int"
+    - variable: "ui_port"
+      description: "Public Managment UI port"
+      label: "Public Managment UI port"
+      required: true
+      default: "8002"      
+      type: "int" 
+    - variable: "managment_port"
+      description: "Public Managment API port"
+      label: "Public Managment API port"
+      required: true
+      default: "8001"      
+      type: "int"              
+    - variable: "managment_host"
       description: "Public Management API Hostname or IP (Your rancher host node)"
       label: "Public Management API Host"
       required: true

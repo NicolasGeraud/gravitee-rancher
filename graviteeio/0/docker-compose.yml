@@ -59,20 +59,20 @@ managementui:
   links:
     - managementapi
   environment:
-    - MGMT_API_URL=http://${managementapi_ip}:8001/management/
+    - MGMT_API_URL=http://${managment_host}:${managment_port}/management/
   labels:
     io.rancher.container.pull_image: always
 
 loadbalancer:
   ports:
-  - 8001:8083
-  - 8002:80
-  - 8000:8082
+  - ${managment_port}:8083
+  - ${ui_port}:80
+  - ${gateway_port}:8082
   labels:
     io.rancher.scheduler.global: 'true'
-    io.rancher.loadbalancer.target.managementapi: 8001=8083
-    io.rancher.loadbalancer.target.management-ui: 8002=80
-    io.rancher.loadbalancer.target.gateway: 8000=8082
+    io.rancher.loadbalancer.target.managementapi: ${managment_port}=8083
+    io.rancher.loadbalancer.target.management-ui: ${ui_port}=80
+    io.rancher.loadbalancer.target.gateway: ${gateway_port}=8082
   tty: true
   image: rancher/load-balancer-service
   links:
