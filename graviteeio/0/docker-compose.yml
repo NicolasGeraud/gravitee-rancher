@@ -39,9 +39,9 @@ gateway:
   labels:
     io.rancher.container.pull_image: always
     
-managementapi:
+management-api:
   image: graviteeio/management-api:${docker_version}
-  hostname: managementapi
+  hostname: management-api
   links:
     - mongodb
     - elasticsearch
@@ -53,30 +53,30 @@ managementapi:
   labels:
     io.rancher.container.pull_image: always
 
-managementui:
-  hostname: managementui
+management-ui:
+  hostname: management-ui
   image: graviteeio/management-ui:${docker_version}
   links:
-    - managementapi
+    - management-api
   environment:
-    - MGMT_API_URL=http://${managment_host}:${managment_port}/management/
+    - MGMT_API_URL=http://${management_host}:${management_port}/management/
   labels:
     io.rancher.container.pull_image: always
 
 loadbalancer:
   ports:
-  - ${managment_port}:8083
+  - ${management_port}:8083
   - ${ui_port}:80
   - ${gateway_port}:8082
   labels:
     io.rancher.scheduler.global: 'true'
-    io.rancher.loadbalancer.target.managementapi: ${managment_port}=8083
+    io.rancher.loadbalancer.target.management-api: ${management_port}=8083
     io.rancher.loadbalancer.target.management-ui: ${ui_port}=80
     io.rancher.loadbalancer.target.gateway: ${gateway_port}=8082
   tty: true
   image: rancher/load-balancer-service
   links:
-  - managementui:managementui
-  - managementapi:managementapi
+  - management-ui:management-ui
+  - management-api:management-api
   - gateway:gateway
   stdin_open: true    

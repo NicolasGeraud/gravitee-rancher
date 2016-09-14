@@ -1,7 +1,7 @@
 .catalog:
   name: Gravitee.io
   version: Lastest
-  description: Gravitee.io API Managment
+  description: Gravitee.io API Management
   uuid: graviteeio-0
   questions:
     - variable: "docker_version"
@@ -17,18 +17,18 @@
       default: "8000"
       type: "int"
     - variable: "ui_port"
-      description: "Public Managment UI port"
-      label: "Public Managment UI port"
+      description: "Public Management UI port"
+      label: "Public Management UI port"
       required: true
       default: "8002"      
       type: "int" 
-    - variable: "managment_port"
-      description: "Public Managment API port"
-      label: "Public Managment API port"
+    - variable: "management_port"
+      description: "Public Management API port"
+      label: "Public Management API port"
       required: true
       default: "8001"      
       type: "int"              
-    - variable: "managment_host"
+    - variable: "management_host"
       description: "Public Management API Hostname or IP (Your rancher host node)"
       label: "Public Management API Host"
       required: true
@@ -37,11 +37,19 @@
 
 gateway:
   scale: 1
-
-managementapi:
+  health_check:
+    port: 8082
+    interval: 2000
+    initializing_timeout: 60000
+    unhealthy_threshold: 3
+    strategy: recreate
+    healthy_threshold: 2
+    response_timeout: 2000
+    
+management-api:
   scale: 1
 
-managementui:
+management-ui:
   scale: 1
 
 mongodb:
